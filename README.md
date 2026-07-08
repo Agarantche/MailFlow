@@ -1,8 +1,24 @@
 # MailFlow
 
-MailFlow is an MVP AI-powered Gmail assistant built with Next.js, TypeScript, Tailwind CSS, shadcn-style UI components, Supabase, Gmail API, and OpenAI.
+> 🚧 **Work in progress** — core features are implemented but the app is not fully functional yet. See [Current status](#current-status).
+
+MailFlow is an AI-powered Gmail assistant built with Next.js, TypeScript, Tailwind CSS, shadcn-style UI components, Supabase, Gmail API, and OpenAI.
 
 It fetches recent unread Gmail messages, analyzes them with AI, displays category/priority/risk/summary/action items, generates copyable replies, and optionally saves a reply as a Gmail draft. It never auto-sends email.
+
+## Current status
+
+Actively being built. What's done and what's still in flight:
+
+- ✅ UI: landing, connect, dashboard, email detail, and settings pages
+- ✅ Server-side Google OAuth flow and Gmail fetch/draft helpers
+- ✅ OpenAI analysis and reply generation pipeline
+- ✅ Supabase schema and demo mode (works without any credentials)
+- 🔧 End-to-end flow with live Gmail/OpenAI credentials — still being tested and stabilized
+- 🔧 Stripe checkout — placeholder only
+- 🔧 Production hardening (token encryption, signed sessions) — planned
+
+The easiest way to see it working today is [demo mode](#demo-mode), which needs no setup.
 
 ## What is included
 

@@ -20,12 +20,12 @@ export function CategoryBadge({ category }: { category?: Category | null }) {
 
 export function PriorityBadge({ priority }: { priority?: Priority | null }) {
   if (!priority) {
-    return <Badge>Priority pending</Badge>;
+    return <Badge>Priority not assessed</Badge>;
   }
 
   const tone =
     priority === "Urgent" || priority === "High"
-      ? "red"
+      ? priority === "Urgent" ? "red" : "amber"
       : priority === "Medium"
         ? "amber"
         : "green";
@@ -35,7 +35,7 @@ export function PriorityBadge({ priority }: { priority?: Priority | null }) {
 
 export function RiskBadge({ riskScore }: { riskScore?: number | null }) {
   if (riskScore === null || riskScore === undefined) {
-    return <Badge>Risk pending</Badge>;
+    return <Badge>Risk not assessed</Badge>;
   }
 
   const tone = riskScore >= 7 ? "red" : riskScore >= 4 ? "amber" : "green";

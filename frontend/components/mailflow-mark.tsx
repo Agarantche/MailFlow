@@ -1,50 +1,14 @@
 import type { HTMLAttributes } from "react";
-
 import { cn } from "@/lib/utils";
 
-export function MailFlowMark({
-  className,
-  ...props
-}: HTMLAttributes<HTMLSpanElement>) {
+export function MailFlowMark({ className, ...props }: HTMLAttributes<HTMLSpanElement>) {
   return (
-    <span className={cn("mf-logo size-10 rounded-xl", className)} {...props}>
-      <svg
-        aria-hidden="true"
-        className="relative z-10 size-6"
-        fill="none"
-        viewBox="0 0 32 32"
-      >
-        {/* Leaf body */}
-        <path
-          d="M25.8 5.4c.5 8.9-2.3 14.9-7 18-3.1 2-6.6 2.3-9.4.8-1.5-4.1-.8-8.6 2.4-12.2 3.3-3.8 8.1-6 14-6.6Z"
-          fill="rgb(246 242 233 / 0.16)"
-          stroke="currentColor"
-          strokeLinejoin="round"
-          strokeWidth="2.1"
-        />
-        {/* Center vein flowing into the stem */}
-        <path
-          className="mf-flow-line"
-          d="M24 8C17.5 11.5 12.5 17 6.5 27"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeWidth="2.1"
-        />
-        {/* Side veins */}
-        <path
-          className="mf-flow-line"
-          d="M18.4 12.6c.3 2.3 1.2 4 2.9 5.2"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeWidth="1.8"
-        />
-        <path
-          className="mf-flow-line"
-          d="M13.9 16.9c.2 2 1 3.6 2.4 4.8"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeWidth="1.8"
-        />
+    <span className={cn("mf-logo inline-grid size-9 shrink-0 place-items-center", className)} {...props}>
+      <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="h-full w-full">
+        <path d="M7 25C4 14 13 5 31 5c1 13-5 24-16 23" fill="currentColor" opacity=".16" />
+        <path d="M8 29C5 17 14 7 32 7c0 14-7 24-19 23" fill="currentColor" />
+        <path d="M7 35c4-11 11-18 20-23M15 22l-1-6M20 18l7 1" stroke="var(--c-bg, #f4f7f2)" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M7 35c2-6 5-10 8-13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     </span>
   );

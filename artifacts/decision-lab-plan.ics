@@ -1,0 +1,86 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//MailFlow//Decision Lab//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:vip-migration-20260904@decision-lab.mailflow.local
+DTSTAMP:20260905T015048Z
+DTSTART:20260904T090000
+DTEND:20260904T094100
+SUMMARY:Unblock the pilot customer's migration
+DESCRIPTION:A customer outcome with a narrow window. The 52-point value is 
+ an editable judgment about keeping the pilot on track.\nImpact: 52 points.
+  Includes 0 minutes of context setup.\nThe pilot team is waiting on our im
+ port mapping. They can still join today's launch if we resolve it before 1
+ 1:00.
+END:VEVENT
+BEGIN:VEVENT
+UID:release-qa-20260904@decision-lab.mailflow.local
+DTSTAMP:20260905T015048Z
+DTSTART:20260904T101500
+DTEND:20260904T110600
+SUMMARY:Verify the release candidate
+DESCRIPTION:The first link in the release chain. Its direct score understat
+ es its importance because two downstream tasks depend on it.\nImpact: 30 p
+ oints. Includes 10 minutes of context setup.\nPlease verify the import and
+  billing paths by 13:45. Your signed checklist is the input to the rollbac
+ k rehearsal.
+END:VEVENT
+BEGIN:VEVENT
+UID:rollback-rehearsal-20260904@decision-lab.mailflow.local
+DTSTAMP:20260905T015048Z
+DTSTART:20260904T110600
+DTEND:20260904T114700
+SUMMARY:Rehearse the rollback
+DESCRIPTION:A concrete dependency on candidate verification. The 35-minute 
+ block cannot be split around lunch.\nImpact: 38 points. Includes 0 minutes
+  of context setup.\nOnce the candidate passes\, run the rollback rehearsal
+  and record the result by 14:30. We need it before the release handoff.
+END:VEVENT
+BEGIN:VEVENT
+UID:release-handoff-20260904@decision-lab.mailflow.local
+DTSTAMP:20260905T015048Z
+DTSTART:20260904T124500
+DTEND:20260904T132600
+SUMMARY:Complete the launch handoff
+DESCRIPTION:The highest-value deliverable requires both earlier links. Plan
+ ning only by a task's own score or cutoff can lose the entire chain.\nImpa
+ ct: 96 points. Includes 0 minutes of context setup.\nAfter QA and the roll
+ back rehearsal\, package the release notes\, owner checklist\, and go/no-g
+ o summary before the 15:00 sync.
+END:VEVENT
+BEGIN:VEVENT
+UID:partner-packet-20260904@decision-lab.mailflow.local
+DTSTAMP:20260905T015048Z
+DTSTART:20260904T132600
+DTEND:20260904T142200
+SUMMARY:Prepare the partner's launch packet
+DESCRIPTION:A useful afternoon commitment with an explicit earliest start. 
+ It cannot be pulled into a convenient morning gap.\nImpact: 45 points. Inc
+ ludes 10 minutes of context setup.\nThe final partner assets arrive at 13:
+ 00. Please assemble their packet between then and our 15:00 meeting.
+END:VEVENT
+BEGIN:VEVENT
+UID:renewal-reply-20260904@decision-lab.mailflow.local
+DTSTAMP:20260905T015048Z
+DTSTART:20260904T153000
+DTEND:20260904T161600
+SUMMARY:Resolve a customer's renewal concern
+DESCRIPTION:A 46-point customer outcome that benefits from staying in the s
+ ame workstream as the partner packet.\nImpact: 46 points. Includes 0 minut
+ es of context setup.\nA customer needs a clear rollout answer before their
+  16:30 review. Please read the notes and prepare a specific response.
+END:VEVENT
+BEGIN:VEVENT
+UID:metrics-snapshot-20260904@decision-lab.mailflow.local
+DTSTAMP:20260905T015048Z
+DTSTART:20260904T161600
+DTEND:20260904T165500
+SUMMARY:Check the first-hour adoption snapshot
+DESCRIPTION:A time-gated task that gives a late-day gap a purpose. The plan
+ ner must wait for the data even if capacity remains earlier.\nImpact: 24 p
+ oints. Includes 10 minutes of context setup.\nThe first reliable export wi
+ ll be available at 16:00. Spend 25 minutes checking adoption and flagging 
+ anomalies before 17:00.
+END:VEVENT
+END:VCALENDAR

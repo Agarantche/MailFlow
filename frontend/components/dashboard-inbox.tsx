@@ -1,362 +1,125 @@
 "use client";
 
-import {
-  ArrowUpRight,
-  Clock3,
-  Inbox,
-  ListFilter,
-  MailOpen,
-  Search,
-  ShieldAlert,
-  SortAsc
-} from "lucide-react";
+import { ArrowUpRight, ArrowRight, AlignJustify, LayoutList, MailOpen, Search, ShieldCheck, SortAsc, Undo2, X } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/frontend/components/empty-state";
-import {
-  CategoryBadge,
-  PriorityBadge,
-  RiskBadge
-} from "@/frontend/components/status-badge";
+import { CategoryBadge, PriorityBadge, RiskBadge } from "@/frontend/components/status-badge";
 import { Badge } from "@/frontend/components/ui/badge";
 import { buttonVariants } from "@/frontend/components/ui/button";
 import { Input } from "@/frontend/components/ui/input";
 import type { EmailRecord } from "@/lib/types";
 import { cn, formatDate, getInitials } from "@/lib/utils";
+import styles from "./app-workspace.module.css";
 
-type DashboardFilter =
-  | "all"
-  | "needs-reply"
-  | "important"
-  | "suspicious"
-  | "newsletters"
-  | "unanalyzed";
-
+type DashboardFilter = "all" | "needs-reply" | "important" | "suspicious" | "newsletters" | "unanalyzed";
 type SortMode = "newest" | "oldest" | "risk" | "priority";
 type Density = "comfortable" | "compact";
 
-export function DashboardInbox({
-  emails,
-  hasConnection
-}: {
-  emails: EmailRecord[];
-  hasConnection: boolean;
-}) {
+export function DashboardInbox({ emails, hasConnection }: { emails: EmailRecord[]; hasConnection: boolean }) {
   const [activeFilter, setActiveFilter] = useState<DashboardFilter>("all");
   const [query, setQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [density, setDensity] = useState<Density>("comfortable");
-  const [selectedEmailId, setSelectedEmailId] = useState<string | null>(
-    emails[0]?.id ?? null
-  );
-
-  const filteredEmails = useMemo(() => {
-    return sortEmails(
-      filterBySearch(filterDashboardEmails(emails, activeFilter), query),
-      sortMode
-    );
-  }, [activeFilter, emails, query, sortMode]);
-
-  const selectedEmail =
-    filteredEmails.find((email) => email.id === selectedEmailId) ??
-    filteredEmails[0] ??
-    null;
+  const [selectedEmailId, setSelectedEmailId] = useState<string | null>(emails[0]?.id ?? null);
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const filteredEmails = useMemo(() => sortEmails(filterBySearch(filterDashboardEmails(emails, activeFilter), query), sortMode), [activeFilter, emails, query, sortMode]);
+  const selectedEmail = filteredEmails.find((email) => email.id === selectedEmailId) ?? filteredEmails[0] ?? null;
   const options = getFilterOptions(emails);
 
   return (
-    <section className="grid gap-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="mf-mono text-[10px] text-primary">Dynamic inbox</p>
-          <h2 className="mt-1 text-xl font-semibold">Recent unread mail</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Showing {filteredEmails.length} of {emails.length} messages
-          </p>
-        </div>
-        {!hasConnection ? (
-          <Link
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-            href="/connect"
-          >
-            Connect Gmail
-          </Link>
-        ) : null}
+    <section className={styles.inbox} aria-labelledby="inbox-title">
+      <div className={styles.inboxHeading}>
+        <div><h2 id="inbox-title">Your inbox, with clarity.</h2><p role="status">{filteredEmails.length} of {emails.length} messages in this view</p></div>
+        {!hasConnection && <Link className={buttonVariants({ variant: "outline", size: "sm" })} href="/connect">Connect Gmail</Link>}
       </div>
-
-      <div className="mf-panel rounded-md p-3">
-        <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto] lg:items-center">
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              className="pl-9"
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search sender, subject, summary, or action"
-              value={query}
-            />
-          </div>
-
-          <label className="flex items-center gap-2 rounded-md border border-border bg-white/70 px-3 py-2 text-sm">
-            <SortAsc className="size-4 text-muted-foreground" aria-hidden="true" />
-            <select
-              className="bg-transparent text-sm outline-none"
-              onChange={(event) => setSortMode(event.target.value as SortMode)}
-              value={sortMode}
-            >
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-              <option value="risk">Highest risk</option>
-              <option value="priority">Highest priority</option>
-            </select>
-          </label>
-
-          <div className="flex rounded-md border border-border bg-white/70 p-1">
-            {(["comfortable", "compact"] as const).map((value) => (
-              <button
-                className={cn(
-                  "rounded px-3 py-1.5 text-sm font-medium transition-colors",
-                  density === value
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                key={value}
-                onClick={() => setDensity(value)}
-                type="button"
-              >
-                {value === "comfortable" ? "Comfort" : "Compact"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-3 flex flex-wrap gap-2">
-          {options.map((option) => {
-            const isActive = option.value === activeFilter;
-
-            return (
-              <button
-                aria-pressed={isActive}
-                className={cn(
-                  buttonVariants({
-                    variant: isActive ? "default" : "outline",
-                    size: "sm"
-                  }),
-                  "h-auto min-h-9 shadow-sm"
-                )}
-                key={option.value}
-                onClick={() => setActiveFilter(option.value)}
-                type="button"
-              >
-                <ListFilter className="size-3.5" aria-hidden="true" />
-                {option.label}
-                <span
-                  className={cn(
-                    "rounded px-1.5 py-0.5 text-xs",
-                    isActive
-                      ? "bg-primary-foreground/90 text-primary"
-                      : "bg-white/80 text-muted-foreground"
-                  )}
-                >
-                  {option.count}
-                </span>
-              </button>
-            );
-          })}
+      <div className={styles.inboxToolbar}>
+        <div className={styles.search}><Search size={16} strokeWidth={1.6} aria-hidden="true" /><Input aria-label="Search emails" onChange={(event) => setQuery(event.target.value)} placeholder="Find a message, person, or next step..." value={query} /></div>
+        <label className={styles.sort}><SortAsc size={16} aria-hidden="true" /><select aria-label="Sort emails" onChange={(event) => setSortMode(event.target.value as SortMode)} value={sortMode}><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="risk">Highest risk</option><option value="priority">Highest priority</option></select></label>
+        <div className={styles.density} role="group" aria-label="Inbox density">
+          <button aria-label="Comfortable view" aria-pressed={density === "comfortable"} onClick={() => setDensity("comfortable")} title="Comfortable view" type="button"><LayoutList size={17} aria-hidden="true" /></button>
+          <button aria-label="Compact view" aria-pressed={density === "compact"} onClick={() => setDensity("compact")} title="Compact view" type="button"><AlignJustify size={17} aria-hidden="true" /></button>
         </div>
       </div>
-
+      <div className={styles.filters} role="group" aria-label="Filter emails">
+        {options.map((option) => <button aria-pressed={option.value === activeFilter} className={styles.filter} key={option.value} onClick={() => setActiveFilter(option.value)} type="button">{option.label}<span className={styles.filterCount}>{option.count}</span></button>)}
+      </div>
       {filteredEmails.length ? (
-        <div className="grid gap-4 xl:grid-cols-[1fr_22rem]">
-          <div className="mf-panel overflow-hidden rounded-md">
-            {filteredEmails.map((email) => (
-              <EmailRow
-                density={density}
-                email={email}
-                isSelected={selectedEmail?.id === email.id}
-                key={email.id}
-                onSelect={() => setSelectedEmailId(email.id)}
-              />
-            ))}
+        <div className={styles.inboxGrid}>
+          <div className={styles.emailList}>
+            {filteredEmails.map((email) => <EmailRow key={email.id} density={density} email={email} isSelected={selectedEmail?.id === email.id} onSelect={() => { setSelectedEmailId(email.id); if (window.matchMedia("(max-width: 767px)").matches) setMobilePreviewOpen(true); }} />)}
           </div>
-          <EmailPreview email={selectedEmail} />
+          {selectedEmail && <EmailPreview email={selectedEmail} mobileOpen={mobilePreviewOpen} onClose={() => setMobilePreviewOpen(false)} />}
         </div>
       ) : (
-        <EmptyState
-          action={
-            emails.length ? (
-              <button
-                className={buttonVariants()}
-                onClick={() => {
-                  setActiveFilter("all");
-                  setQuery("");
-                }}
-                type="button"
-              >
-                Clear view
-              </button>
-            ) : hasConnection ? null : (
-              <Link className={buttonVariants()} href="/connect">
-                Connect Gmail
-              </Link>
-            )
-          }
-          description={
-            emails.length
-              ? "Adjust the search or filters to return to the inbox."
-              : "Fetch unread Gmail messages to begin analysis. New records will appear here with loading-safe pending states."
-          }
-          title={emails.length ? "No matching emails" : "No emails yet"}
-        />
+        <EmptyState title={emails.length ? "Nothing here. A little room to breathe." : "A fresh start for your inbox."} description={emails.length ? "Try a different search or clear your filters to see your messages." : hasConnection ? "Choose Fetch unread above to bring your latest messages into this space." : "Connect Gmail to bring your messages into one calm space."} action={emails.length ? <button className={buttonVariants()} onClick={() => { setActiveFilter("all"); setQuery(""); }} type="button">Clear filters</button> : !hasConnection ? <Link className={buttonVariants()} href="/connect">Connect Gmail</Link> : null} />
       )}
     </section>
   );
 }
 
-function EmailRow({
-  email,
-  isSelected,
-  density,
-  onSelect
-}: {
-  email: EmailRecord;
-  isSelected: boolean;
-  density: Density;
-  onSelect: () => void;
-}) {
-  const isPending = !email.summary;
-  const isRisky = isSuspiciousEmail(email);
-  const accent = isRisky
-    ? "bg-rose-500"
-    : email.needs_reply
-      ? "bg-amber-500"
-      : isPending
-        ? "bg-sky-500"
-        : "bg-emerald-500";
+function senderName(sender: string) { return sender.split("<")[0].trim().replace(/^"|"$/g, "") || sender; }
+function senderAddress(sender: string) { return sender.match(/<(.+)>/)?.[1] ?? sender; }
 
+function EmailRow({ email, isSelected, density, onSelect }: { email: EmailRecord; isSelected: boolean; density: Density; onSelect: () => void }) {
+  const name = senderName(email.sender);
   return (
-    <article
-      className={cn(
-        "group grid gap-4 border-b border-border transition-colors last:border-b-0 hover:bg-black/[0.03] md:grid-cols-[1fr_auto]",
-        density === "compact" ? "p-3" : "p-4",
-        isSelected ? "bg-primary/[0.08]" : "bg-transparent"
-      )}
-    >
-      <button
-        className="grid min-w-0 grid-cols-[2.75rem_1fr] gap-3 text-left"
-        onClick={onSelect}
-        type="button"
-      >
-        <span className="relative grid size-11 place-items-center rounded-md border border-border bg-white/80 text-sm font-semibold text-muted-foreground shadow-sm">
-          <span
-            className={cn(
-              "absolute left-0 top-0 h-full w-1 rounded-l-md",
-              accent
-            )}
-          />
-          {getInitials(email.sender)}
-        </span>
-        <span className="min-w-0">
-          <span className="flex flex-wrap items-center gap-2">
-            <span className="truncate text-sm font-semibold group-hover:text-primary">
-              {email.subject}
-            </span>
-            {email.needs_reply ? <Badge tone="amber">Needs reply</Badge> : null}
-            {isPending ? <Badge tone="blue">Pending analysis</Badge> : null}
-          </span>
-          <span className="mt-1 block truncate text-sm text-muted-foreground">
-            {email.sender}
-          </span>
-          {density === "comfortable" ? (
-            <span className="mt-2 line-clamp-2 block text-sm leading-6 text-muted-foreground">
-              {email.summary ?? email.body}
-            </span>
-          ) : null}
+    <article className={cn(styles.emailRow, isSelected && styles.selectedRow, density === "compact" && styles.compact)}>
+      <button className={styles.rowSelect} onClick={onSelect} type="button" aria-pressed={isSelected} aria-label={`Preview: ${email.subject}`}>
+        <span className={cn(styles.senderAvatar, isSuspiciousEmail(email) && styles.riskyAvatar)}>{getInitials(name)}</span>
+        <span className={styles.rowContent}>
+          <span className={styles.rowTop}><span className={styles.sender}>{name}</span><time className={styles.rowDate} dateTime={email.created_at}>{formatDate(email.created_at)}</time></span>
+          <span className={styles.rowSubject}>{email.subject}</span>
+          {density === "comfortable" && <span className={styles.rowSnippet}>{email.summary ?? email.body}</span>}
         </span>
       </button>
-
-      <div className="flex flex-wrap items-start gap-2 md:max-w-sm md:justify-end">
-        <div className="flex flex-wrap gap-2 md:justify-end">
-          <CategoryBadge category={email.category} />
-          <PriorityBadge priority={email.priority} />
-          <RiskBadge riskScore={email.risk_score} />
-        </div>
-        <Badge className="gap-1">
-          <Clock3 className="size-3" aria-hidden="true" />
-          {formatDate(email.created_at)}
-        </Badge>
-        <Link
-          className={buttonVariants({
-            variant: "ghost",
-            size: "sm",
-            className: "h-8"
-          })}
-          href={`/emails/${email.id}`}
-        >
-          Open
-          <ArrowUpRight className="size-3.5" aria-hidden="true" />
-        </Link>
+      <div className={styles.rowFooter}>
+        {email.summary ? <CategoryBadge category={email.category} /> : <Badge>Awaiting analysis</Badge>}
+        {email.needs_reply && <span className={styles.replyFlag}><Undo2 size={11} aria-hidden="true" />Needs reply</span>}
+        <Link href={`/emails/${email.id}`} aria-label={`Open ${email.subject}`}>Open <ArrowUpRight size={12} aria-hidden="true" /></Link>
       </div>
     </article>
   );
 }
 
-function EmailPreview({ email }: { email: EmailRecord | null }) {
-  if (!email) {
-    return (
-      <aside className="mf-panel rounded-md p-5">
-        <Inbox className="size-5 text-muted-foreground" aria-hidden="true" />
-      </aside>
-    );
-  }
-
+function EmailPreview({ email, mobileOpen, onClose }: { email: EmailRecord; mobileOpen: boolean; onClose: () => void }) {
+  const panelRef = useRef<HTMLElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    const smallScreen = window.matchMedia("(max-width: 767px)");
+    const onViewportChange = () => { if (!smallScreen.matches) onCloseRef.current(); };
+    document.body.style.overflow = "hidden";
+    panelRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onCloseRef.current();
+      if (event.key !== "Tab") return;
+      const items = panelRef.current?.querySelectorAll<HTMLElement>('a[href],button:not([disabled])');
+      if (!items?.length) return;
+      const first = items[0]; const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    smallScreen.addEventListener("change", onViewportChange);
+    return () => { document.body.style.overflow = overflow; document.removeEventListener("keydown", onKeyDown); smallScreen.removeEventListener("change", onViewportChange); previousFocus?.focus(); };
+  }, [mobileOpen]);
+  const name = senderName(email.sender);
   return (
-    <aside className="mf-panel sticky top-24 hidden self-start rounded-md p-5 xl:block">
-      <div className="flex items-start justify-between gap-3">
-        <span className="grid size-10 place-items-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
-          {getInitials(email.sender)}
-        </span>
-        <Link
-          className={buttonVariants({ variant: "outline", size: "sm" })}
-          href={`/emails/${email.id}`}
-        >
-          Open
-          <ArrowUpRight className="size-3.5" aria-hidden="true" />
-        </Link>
-      </div>
-      <h3 className="mt-4 text-base font-semibold leading-6">{email.subject}</h3>
-      <p className="mt-1 truncate text-sm text-muted-foreground">
-        {email.sender}
-      </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <CategoryBadge category={email.category} />
-        <PriorityBadge priority={email.priority} />
-        <RiskBadge riskScore={email.risk_score} />
-      </div>
-      <div className="mt-5 rounded-md border border-border bg-white/70 p-4">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <MailOpen className="size-4 text-primary" aria-hidden="true" />
-          Summary
-        </div>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {email.summary ?? email.body}
-        </p>
-      </div>
-      <div className="mt-4 rounded-md border border-border bg-white/70 p-4">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <ShieldAlert className="size-4 text-primary" aria-hidden="true" />
-          Recommended action
-        </div>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {email.recommended_action ?? "Analyze this email to get a recommendation."}
-        </p>
-      </div>
+    <aside ref={panelRef} className={cn(styles.preview, mobileOpen && styles.previewOpen)} role={mobileOpen ? "dialog" : undefined} aria-modal={mobileOpen ? true : undefined} aria-label="Message preview">
+      <div className={styles.previewHeader}><button className={styles.previewClose} type="button" onClick={onClose} aria-label="Close preview"><X size={15} aria-hidden="true" /></button><span className={styles.previewLabel}>A moment of clarity</span><Link href={`/emails/${email.id}`}>Full message <ArrowUpRight size={13} aria-hidden="true" /></Link></div>
+      <div className={styles.previewSender}><span className={styles.senderAvatar}>{getInitials(name)}</span><div><strong>{name}</strong><p>{senderAddress(email.sender)}</p></div></div>
+      <h3>{email.subject}</h3>
+      <div className={styles.previewBadges}><PriorityBadge priority={email.priority} /><RiskBadge riskScore={email.risk_score} /></div>
+      <div className={styles.summary}><h4><MailOpen size={14} aria-hidden="true" />{email.summary ? "The short version" : "Message preview"}</h4><p>{email.summary ?? email.body}</p></div>
+      <div className={styles.recommendation}><h4><ShieldCheck size={14} aria-hidden="true" />Your next step</h4><p>{email.recommended_action ?? "Choose Analyze inbox to find the key details and suggested next step."}</p></div>
+      <Link className={buttonVariants({ className: styles.previewAction })} href={`/emails/${email.id}`}>{email.needs_reply ? "Review & draft a reply" : "Read full message"}<ArrowRight size={15} aria-hidden="true" /></Link>
     </aside>
   );
 }
-
 function filterBySearch(emails: EmailRecord[], query: string) {
   const normalizedQuery = query.trim().toLowerCase();
 

@@ -6,7 +6,7 @@ export function Alert({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        "rounded-md border border-border bg-white/70 px-4 py-3 text-sm text-muted-foreground shadow-sm",
+        "rounded-xl border border-border bg-[#fcfdf9] px-4 py-3 text-sm leading-6 text-muted-foreground",
         className
       )}
       {...props}

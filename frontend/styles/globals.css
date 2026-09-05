@@ -2,407 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
-  MailFlow design system — "Greenhouse" edition.
-
-  Direction: the anti-AI-slop counter-move — no dark theme, no blue/purple
-  gradients, no neon glass. Warm paper, deep forest ink, fern green and
-  terracotta, a characterful serif display (Fraunces), botanical photography,
-  and soft organic shadows. Motion stays fluid but gentle; reduced-motion is
-  respected. Panels are calm solid surfaces; translucency is reserved for the
-  frosted app chrome only.
-*/
-
 :root {
-  --c-bg: #f6f2e9;
-  --c-card: #fffdf8;
-  --c-inset: #f9f6ee;
-  --c-surface: rgb(46 62 45 / 0.05);
-  --c-hover: rgb(46 62 45 / 0.07);
-  --c-line: rgb(62 74 54 / 0.14);
-  --c-line-strong: rgb(62 74 54 / 0.26);
-  --c-ink: #26301f;
-  --c-muted: #5c6653;
-  --c-soft: #8b937f;
-  --c-brand: #38684a;
-  --c-brand-strong: #2c543b;
-  --c-terracotta: #b65c2e;
-  --c-rose: #b23a2e;
-  --c-rose-soft: #c9564a;
-  --c-sky: #3d708f;
-  --c-amber: #b57f24;
-  --c-gold: #c79a3b;
-  --c-shadow: 0 22px 48px -28px rgb(58 74 48 / 0.38);
-  --spring: cubic-bezier(0.22, 1, 0.36, 1);
-  --spring-pop: cubic-bezier(0.34, 1.45, 0.64, 1);
-  --mf-display: var(--font-display), "Fraunces", Georgia, "Times New Roman", serif;
-  --mf-sans: var(--font-sans), Karla, -apple-system, BlinkMacSystemFont, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
-  --mf-mono: var(--font-mono), "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  --background: 43 42% 94%;
-  --foreground: 100 22% 15%;
-  --card: 45 64% 98%;
-  --card-foreground: 100 22% 15%;
-  --primary: 142 30% 31%;
-  --primary-foreground: 44 60% 97%;
-  --secondary: 80 24% 89%;
-  --secondary-foreground: 100 22% 15%;
-  --muted: 55 30% 91%;
-  --muted-foreground: 96 10% 36%;
-  --accent: 21 60% 45%;
-  --accent-foreground: 44 60% 97%;
-  --destructive: 6 59% 44%;
-  --destructive-foreground: 44 60% 97%;
-  --border: 70 15% 80%;
-  --input: 70 15% 78%;
-  --ring: 142 30% 31%;
-  --radius: 14px;
+  --c-bg: #f4f7f2;
+  --c-card: #fcfdf9;
+  --c-inset: #edf2e9;
+  --c-surface: rgb(24 61 43 / 0.045);
+  --c-hover: rgb(24 61 43 / 0.065);
+  --c-line: rgb(24 61 43 / 0.12);
+  --c-line-strong: rgb(24 61 43 / 0.24);
+  --c-ink: #183d2b;
+  --c-muted: #627366;
+  --c-soft: #829181;
+  --c-brand: #427455;
+  --c-brand-strong: #244d35;
+  --c-terracotta: #a57b49;
+  --c-rose: #a54737;
+  --c-rose-soft: #c96d59;
+  --c-sky: #5c7c83;
+  --c-amber: #a18135;
+  --c-gold: #bdac70;
+  --c-shadow: 0 12px 45px -30px rgb(24 61 43 / 0.20);
+  --spring: cubic-bezier(.22, 1, .36, 1);
+  --spring-pop: cubic-bezier(.34, 1.45, .64, 1);
+  --mf-display: var(--font-sans), "Cabinet Grotesk", "Segoe UI", sans-serif;
+  --mf-sans: var(--font-sans), "Cabinet Grotesk", "Segoe UI", sans-serif;
+  --mf-mono: "SFMono-Regular", Consolas, monospace;
+  --background: 96 24% 96%;
+  --foreground: 151 44% 17%;
+  --card: 75 50% 98%;
+  --card-foreground: 151 44% 17%;
+  --primary: 143 28% 36%;
+  --primary-foreground: 75 50% 98%;
+  --secondary: 86 33% 90%;
+  --secondary-foreground: 151 44% 17%;
+  --muted: 93 25% 93%;
+  --muted-foreground: 134 8% 40%;
+  --accent: 85 47% 84%;
+  --accent-foreground: 151 44% 17%;
+  --destructive: 9 50% 43%;
+  --destructive-foreground: 75 50% 98%;
+  --border: 108 16% 84%;
+  --input: 108 16% 82%;
+  --ring: 143 28% 36%;
+  --radius: 18px;
 }
 
-* {
-  border-color: hsl(var(--border));
-}
-
-html {
-  color-scheme: light;
-  background: var(--c-bg);
-}
-
-body {
-  margin: 0;
-  background:
-    radial-gradient(48rem 32rem at 6% -8%, rgb(86 128 88 / 0.13), transparent 60%),
-    radial-gradient(44rem 30rem at 94% 0%, rgb(199 154 59 / 0.11), transparent 58%),
-    radial-gradient(40rem 30rem at 55% 112%, rgb(182 92 46 / 0.07), transparent 56%),
-    var(--c-bg);
-  background-attachment: fixed;
-  color: hsl(var(--foreground));
-  font-family: var(--mf-sans);
-  -webkit-font-smoothing: antialiased;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-::selection {
-  background: rgb(56 104 74 / 0.22);
-}
-
-.mf-shell-grid {
-  background-image:
-    linear-gradient(rgb(46 62 45 / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(46 62 45 / 0.04) 1px, transparent 1px);
-  background-position: center top;
-  background-size: 44px 44px;
-}
-
-/* ---- Surfaces ---- */
-
-/* Calm paper card — solid, warm, with a soft botanical shadow. */
-.mf-panel {
-  border: 1px solid var(--c-line);
-  background: var(--c-card);
-  box-shadow:
-    var(--c-shadow),
-    inset 0 1px 0 0 rgb(255 255 255 / 0.85);
-  transition:
-    transform 0.5s var(--spring),
-    box-shadow 0.5s var(--spring),
-    border-color 0.35s ease;
-}
-
-/* Frosted paper — reserved for the fixed chrome (sidebar, header, dialogs). */
-.mf-glass {
-  border: 1px solid var(--c-line);
-  background: rgb(250 247 239 / 0.82);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  backdrop-filter: blur(18px) saturate(140%);
-  box-shadow: 0 18px 44px -30px rgb(58 74 48 / 0.35);
-}
-
-.mf-inset {
-  border: 1px solid var(--c-line);
-  background: var(--c-inset);
-}
-
-.mf-lift:hover {
-  transform: translateY(-3px) scale(1.004);
-  border-color: var(--c-line-strong);
-  box-shadow:
-    0 30px 60px -30px rgb(58 74 48 / 0.45),
-    inset 0 1px 0 0 rgb(255 255 255 / 0.85);
-}
-
-/* Gentle light sweep across a card on hover — warm, not neon. */
-.mf-specular {
-  position: relative;
-  overflow: hidden;
-}
-
-.mf-specular::before {
-  position: absolute;
-  inset: -60% -30%;
-  content: "";
-  pointer-events: none;
-  background: linear-gradient(
-    105deg,
-    transparent 42%,
-    rgb(255 253 245 / 0.55) 50%,
-    transparent 58%
-  );
-  transform: translateX(-130%) rotate(8deg);
-  transition: transform 1.1s var(--spring);
-}
-
-.mf-specular:hover::before {
-  transform: translateX(130%) rotate(8deg);
-}
-
-.mf-display {
-  font-family: var(--mf-display);
-  font-weight: 500;
-  letter-spacing: -0.015em;
-}
-
-.mf-mono {
-  font-family: var(--mf-mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-/* ---- Logo — pressed-leaf mark on a forest tile ---- */
-.mf-logo {
-  position: relative;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  border: 1px solid rgb(255 253 245 / 0.25);
-  background:
-    radial-gradient(circle at 28% 20%, rgb(255 253 245 / 0.2), transparent 46%),
-    linear-gradient(150deg, #3c704f, #2c543b 70%);
-  color: #f6f2e9;
-  box-shadow:
-    0 14px 30px -16px rgb(44 84 59 / 0.75),
-    inset 0 1px 0 0 rgb(255 253 245 / 0.35);
-}
-
-.mf-logo::after {
-  position: absolute;
-  inset: -40%;
-  content: "";
-  background: linear-gradient(110deg, transparent 40%, rgb(255 253 245 / 0.22), transparent 60%);
-  transform: translateX(-70%) rotate(16deg);
-  animation: mf-flow 6s ease-in-out infinite;
-}
-
-.mf-flow-line {
-  stroke-dasharray: 54;
-  stroke-dashoffset: 108;
-  animation: mf-dash 3.8s ease-in-out infinite;
-}
-
-.mf-flow-line:nth-child(2) {
-  animation-delay: 0.24s;
-}
-
-.mf-flow-line:nth-child(3) {
-  animation-delay: 0.48s;
-}
-
-/* ---- Fluid motion ---- */
-
-.mf-rise {
-  animation: mf-rise 0.7s var(--spring) both;
-}
-
-.mf-pop {
-  animation: mf-pop 0.38s var(--spring-pop) both;
-}
-
-.mf-fade {
-  animation: mf-fade 0.3s ease-out both;
-}
-
-.mf-d1 { animation-delay: 0.06s; }
-.mf-d2 { animation-delay: 0.12s; }
-.mf-d3 { animation-delay: 0.18s; }
-.mf-d4 { animation-delay: 0.24s; }
-
-.mf-scroll {
-  scrollbar-color: rgb(46 62 45 / 0.28) transparent;
-  scrollbar-width: thin;
-}
-
-.mf-scroll::-webkit-scrollbar {
-  width: 10px;
-}
-
-.mf-scroll::-webkit-scrollbar-thumb {
-  border: 3px solid transparent;
-  border-radius: 999px;
-  background: rgb(46 62 45 / 0.24);
-  background-clip: content-box;
-}
-
-.mf-skel {
-  position: relative;
-  overflow: hidden;
-  background: var(--c-surface);
-}
-
-.mf-skel::after {
-  position: absolute;
-  inset: 0;
-  content: "";
-  background: linear-gradient(90deg, transparent, rgb(255 253 245 / 0.7), transparent);
-  transform: translateX(-100%);
-  animation: mf-shimmer 1.8s infinite;
-}
-
-@keyframes mf-rise {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes mf-pop {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes mf-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes mf-flow {
-  0%,
-  46% {
-    transform: translateX(-70%) rotate(16deg);
-  }
-  72%,
-  100% {
-    transform: translateX(70%) rotate(16deg);
-  }
-}
-
-@keyframes mf-dash {
-  0% {
-    stroke-dashoffset: 108;
-  }
-  52% {
-    stroke-dashoffset: 54;
-  }
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes mf-shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* ---- Accessibility fallbacks ---- */
-
+* { border-color: hsl(var(--border)); }
+html { color-scheme: light; background: var(--c-bg); scroll-behavior: smooth; scroll-padding-top: 90px; }
+body { margin: 0; background: var(--c-bg); color: var(--c-ink); font-family: var(--mf-sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; }
+button, a, summary { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), summary { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+::selection { background: #d6e6c1; color: #183d2b; }
+:focus-visible { outline: 2px solid #427455; outline-offset: 4px; }
+.mf-shell-grid { background: var(--c-bg); }
+.mf-display { font-family: var(--mf-display); font-weight: 500; letter-spacing: -.045em; }
+.mf-mono { font-family: var(--mf-mono); letter-spacing: .075em; text-transform: uppercase; }
+.mf-logo { color: var(--c-brand-strong); }
+.mf-panel { border: 1px solid var(--c-line); background: var(--c-card); box-shadow: var(--c-shadow); transition: border-color .3s ease, box-shadow .3s ease, transform .5s var(--spring); }
+.mf-glass { background: rgb(248 250 245 / .86); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border-color: var(--c-line); }
+.mf-inset { border: 1px solid var(--c-line); background: var(--c-inset); }
+.mf-lift:hover { transform: translateY(-2px); border-color: var(--c-line-strong); box-shadow: 0 20px 45px -32px rgb(24 61 43 / .30); }
+.mf-specular { position: relative; overflow: hidden; }
+.mf-scroll { scrollbar-color: #c6d2be transparent; scrollbar-width: thin; }
+.mf-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.mf-scroll::-webkit-scrollbar-thumb { border: 2px solid transparent; background: #c6d2be; background-clip: content-box; border-radius: 20px; }
+.mf-rise { animation: mf-rise .7s var(--spring) both; }
+.mf-pop { animation: mf-rise .4s var(--spring) both; }
+.mf-fade { animation: mf-fade .3s ease-out both; }
+.mf-d1 { animation-delay: .05s; }.mf-d2 { animation-delay: .1s; }.mf-d3 { animation-delay: .15s; }.mf-d4 { animation-delay: .2s; }
+.mf-skel { position: relative; overflow: hidden; background: var(--c-surface); }
+.mf-skel::after { position: absolute; inset: 0; content: ""; background: linear-gradient(90deg, transparent, #fff8, transparent); transform: translateX(-100%); animation: mf-shimmer 1.8s infinite; }
+@keyframes mf-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes mf-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mf-shimmer { to { transform: translateX(100%); } }
 @media (prefers-reduced-motion: reduce) {
-  .mf-rise,
-  .mf-pop,
-  .mf-fade,
-  .mf-logo::after,
-  .mf-flow-line,
-  .mf-skel::after {
-    animation: none;
-  }
-
-  .mf-flow-line {
-    stroke-dasharray: none;
-    stroke-dashoffset: 0;
-  }
-
-  .mf-panel,
-  .mf-lift,
-  .mf-specular::before {
-    transition: none;
-  }
-
-  .mf-lift:hover {
-    transform: none;
-  }
+  html { scroll-behavior: auto; }
+  .mf-rise, .mf-pop, .mf-fade, .mf-skel::after { animation: none; }
+  .mf-panel, .mf-lift { transition: none; }
+  .mf-lift:hover { transform: none; }
 }
-
-@media (prefers-reduced-transparency: reduce) {
-  .mf-glass {
-    background: var(--c-bg);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
-/* ---- Landing (light minimal) helpers ---- */
-.mf-light {
-  --mf-ink: #26301f;
-  --mf-ink-soft: #5c6653;
-  --mf-line: #e5e1d3;
-  --mf-paper: #fffdf8;
-  --mf-paper-2: #f9f6ee;
-}
-
-.mf-hero-grid {
-  background-image:
-    linear-gradient(rgb(38 48 31 / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(38 48 31 / 0.04) 1px, transparent 1px);
-  background-size: 56px 56px;
-  background-position: center top;
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 35%, transparent 78%);
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 35%, transparent 78%);
-}
-
-.mf-marquee-mask {
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-}
-
-.mf-marquee-track {
-  display: flex;
-  width: max-content;
-  animation: mf-marquee 32s linear infinite;
-}
-
-@media (hover: hover) {
-  .mf-marquee-track:hover {
-    animation-play-state: paused;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mf-marquee-track {
-    animation: none;
-  }
-}
-
-@keyframes mf-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
+@media (prefers-reduced-transparency: reduce) { .mf-glass { background: #f8faf5; backdrop-filter: none; -webkit-backdrop-filter: none; } }

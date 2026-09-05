@@ -1,0 +1,208 @@
+import type { CalendarBlock, PlannerOptions, PlannerTask } from "./types";
+
+export const scenarioTitle = "One day. Twelve asks. A launch on the line.";
+
+export const scenarioDescription =
+  "A fictional launch-day inbox: a customer needs help, three linked release tasks must land, and urgent little requests compete for the same hours.";
+
+export const defaultOptions: PlannerOptions = {
+  start: 540,
+  end: 1020,
+  bufferPercent: 15,
+  switchMinutes: 10,
+  requiredIds: [],
+};
+
+export const demoMeetings: CalendarBlock[] = [
+  { id: "standup", title: "Launch standup", start: 585, end: 615 },
+  { id: "lunch", title: "Lunch", start: 720, end: 765 },
+  { id: "partner-sync", title: "Partner sync", start: 900, end: 930 },
+];
+
+/**
+ * Entirely synthetic inbox. Names, messages, durations, and scores are authored
+ * for this demonstration; nothing here was read from a real email account.
+ */
+export const demoTasks: PlannerTask[] = [
+  {
+    id: "vip-migration",
+    title: "Unblock the pilot customer's migration",
+    sender: "Maya · Customer success",
+    excerpt:
+      "The pilot team is waiting on our import mapping. They can still join today's launch if we resolve it before 11:00.",
+    rationale:
+      "A customer outcome with a narrow window. The 52-point value is an editable judgment about keeping the pilot on track.",
+    stream: "customer",
+    duration: 35,
+    value: 52,
+    deadline: 660,
+    release: 540,
+    dependencies: [],
+  },
+  {
+    id: "invoice-code",
+    title: "Find a cost code for an internal invoice",
+    sender: "Ellis · Finance operations",
+    excerpt:
+      "Could you send the cost code before 09:45? My spreadsheet is open now. Tomorrow's processing run is also fine.",
+    rationale:
+      "An early requested cutoff, but low cost to defer. Its six points make the difference between urgency and value explicit.",
+    stream: "operations",
+    duration: 20,
+    value: 6,
+    deadline: 585,
+    release: 540,
+    dependencies: [],
+  },
+  {
+    id: "social-caption",
+    title: "Polish an optional launch caption",
+    sender: "Rowan · Marketing",
+    excerpt:
+      "A final wordsmithing pass by 10:30 would be lovely. The approved caption is ready if you cannot get to it.",
+    rationale:
+      "The approved fallback already works. This five-point improvement can consume the morning slot needed by a customer.",
+    stream: "operations",
+    duration: 25,
+    value: 5,
+    deadline: 630,
+    release: 540,
+    dependencies: [],
+  },
+  {
+    id: "release-qa",
+    title: "Verify the release candidate",
+    sender: "Noor · Engineering",
+    excerpt:
+      "Please verify the import and billing paths by 13:45. Your signed checklist is the input to the rollback rehearsal.",
+    rationale:
+      "The first link in the release chain. Its direct score understates its importance because two downstream tasks depend on it.",
+    stream: "launch",
+    duration: 35,
+    value: 30,
+    deadline: 825,
+    release: 540,
+    dependencies: [],
+  },
+  {
+    id: "rollback-rehearsal",
+    title: "Rehearse the rollback",
+    sender: "Noor · Engineering",
+    excerpt:
+      "Once the candidate passes, run the rollback rehearsal and record the result by 14:30. We need it before the release handoff.",
+    rationale:
+      "A concrete dependency on candidate verification. The 35-minute block cannot be split around lunch.",
+    stream: "launch",
+    duration: 35,
+    value: 38,
+    deadline: 870,
+    release: 540,
+    dependencies: ["release-qa"],
+  },
+  {
+    id: "release-handoff",
+    title: "Complete the launch handoff",
+    sender: "Ari · Release lead",
+    excerpt:
+      "After QA and the rollback rehearsal, package the release notes, owner checklist, and go/no-go summary before the 15:00 sync.",
+    rationale:
+      "The highest-value deliverable requires both earlier links. Planning only by a task's own score or cutoff can lose the entire chain.",
+    stream: "launch",
+    duration: 35,
+    value: 96,
+    deadline: 900,
+    release: 540,
+    dependencies: ["rollback-rehearsal"],
+  },
+  {
+    id: "partner-packet",
+    title: "Prepare the partner's launch packet",
+    sender: "Jules · Partnerships",
+    excerpt:
+      "The final partner assets arrive at 13:00. Please assemble their packet between then and our 15:00 meeting.",
+    rationale:
+      "A useful afternoon commitment with an explicit earliest start. It cannot be pulled into a convenient morning gap.",
+    stream: "customer",
+    duration: 40,
+    value: 45,
+    deadline: 900,
+    release: 780,
+    dependencies: [],
+  },
+  {
+    id: "renewal-reply",
+    title: "Resolve a customer's renewal concern",
+    sender: "Maya · Customer success",
+    excerpt:
+      "A customer needs a clear rollout answer before their 16:30 review. Please read the notes and prepare a specific response.",
+    rationale:
+      "A 46-point customer outcome that benefits from staying in the same workstream as the partner packet.",
+    stream: "customer",
+    duration: 40,
+    value: 46,
+    deadline: 990,
+    release: 540,
+    dependencies: [],
+  },
+  {
+    id: "metrics-snapshot",
+    title: "Check the first-hour adoption snapshot",
+    sender: "Sam · Operations",
+    excerpt:
+      "The first reliable export will be available at 16:00. Spend 25 minutes checking adoption and flagging anomalies before 17:00.",
+    rationale:
+      "A time-gated task that gives a late-day gap a purpose. The planner must wait for the data even if capacity remains earlier.",
+    stream: "operations",
+    duration: 25,
+    value: 24,
+    deadline: 1020,
+    release: 960,
+    dependencies: [],
+  },
+  {
+    id: "vendor-approval",
+    title: "Finish the vendor approval packet",
+    sender: "Casey · Procurement",
+    excerpt:
+      "Legal has not returned the signed addendum. Once it arrives, finishing the approval packet should take 20 minutes.",
+    rationale:
+      "More available time cannot resolve missing external approval. The blocker also prevents the dependent seat purchase.",
+    stream: "operations",
+    duration: 20,
+    value: 18,
+    deadline: 840,
+    release: 540,
+    dependencies: [],
+    blocked: "Waiting for Legal's signed addendum; no arrival time is confirmed.",
+  },
+  {
+    id: "purchase-seats",
+    title: "Arrange the support team's vendor seats",
+    sender: "Casey · Procurement",
+    excerpt:
+      "After the vendor approval packet is complete, assemble the seat order and the team's access instructions.",
+    rationale:
+      "An indirect blocker: this work is valuable, but cannot be scheduled while its approval dependency is unresolved.",
+    stream: "operations",
+    duration: 25,
+    value: 36,
+    deadline: 1020,
+    release: 540,
+    dependencies: ["vendor-approval"],
+  },
+  {
+    id: "inbox-cleanup",
+    title: "Tidy labels before the inbox review",
+    sender: "Taylor · Internal operations",
+    excerpt:
+      "If you can, clean up the old labels for the 11:30 review. We can review the current structure if launch work takes priority.",
+    rationale:
+      "A 35-minute cosmetic improvement with a nine-point score. Its early cutoff makes it tempting for an urgency-first plan.",
+    stream: "operations",
+    duration: 35,
+    value: 9,
+    deadline: 690,
+    release: 540,
+    dependencies: [],
+  },
+];

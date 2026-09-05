@@ -1,32 +1,22 @@
 import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Mono, Karla } from "next/font/google";
+import localFont from "next/font/local";
 
 import "@/frontend/styles/globals.css";
 
-const sans = Karla({
-  subsets: ["latin"],
+const sans = localFont({
+  src: [
+    { path: "../public/fonts/cabinet-grotesk-regular.woff2", weight: "400", style: "normal" },
+    { path: "../public/fonts/cabinet-grotesk-medium.woff2", weight: "500", style: "normal" },
+    { path: "../public/fonts/cabinet-grotesk-bold.woff2", weight: "700", style: "normal" },
+    { path: "../public/fonts/cabinet-grotesk-extrabold.woff2", weight: "800", style: "normal" }
+  ],
   variable: "--font-sans",
   display: "swap"
 });
 
-const display = Fraunces({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-display",
-  display: "swap"
-});
-
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-mono",
-  display: "swap"
-});
-
 export const metadata: Metadata = {
-  title: "MailFlow — Inbox calm before your coffee",
-  description: "AI-powered Gmail triage, analysis, and reply drafting."
+  title: "MailFlow — Less inbox. More life.",
+  description: "A little room to breathe. Bring clarity to your inbox, find your next step, and make space for your day."
 };
 
 export default function RootLayout({
@@ -36,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={`${sans.variable} ${display.variable} ${mono.variable}`}
+      className={sans.variable}
       data-mf-theme="light"
       lang="en"
     >

@@ -3,13 +3,16 @@
 import {
   Command,
   CornerDownLeft,
+  Home,
   Inbox,
   LogOut,
   PlugZap,
   RefreshCcw,
   ScanSearch,
   Search,
-  Settings
+  Settings,
+  Waypoints,
+  X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -34,12 +37,12 @@ export function openCommandPalette() {
 export function SidebarCommandTrigger() {
   return (
     <button
-      className="flex h-11 items-center gap-3 rounded-md border border-border bg-white/70 px-3 text-left text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-foreground"
+      className="flex h-10 w-full items-center gap-2 rounded-lg border border-[#183d2b14] bg-white/40 px-3 text-left text-xs text-muted-foreground transition-colors hover:bg-white/80 hover:text-foreground"
       onClick={openCommandPalette}
       type="button"
     >
       <Search className="size-4 shrink-0" aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate">Search commands</span>
+      <span className="min-w-0 flex-1 truncate">Quick actions</span>
       <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">
         K
       </span>
@@ -50,13 +53,14 @@ export function SidebarCommandTrigger() {
 export function HeaderCommandTrigger() {
   return (
     <button
-      className="ml-auto hidden h-9 min-w-64 items-center gap-2 rounded-md border border-border bg-white/70 px-3 text-left text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 md:flex"
+      className="ml-auto flex h-9 items-center gap-2 rounded-full px-2 text-left text-xs text-muted-foreground transition-colors hover:bg-[#e8efdf] hover:text-foreground sm:px-3"
+      aria-label="Open quick actions"
       onClick={openCommandPalette}
       type="button"
     >
       <Command className="size-4" aria-hidden="true" />
-      <span className="flex-1">Search, filter, or run actions</span>
-      <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">
+      <span className="hidden flex-1 sm:block">Quick actions</span>
+      <span className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-[9px] md:block">
         Ctrl K
       </span>
     </button>
@@ -71,6 +75,7 @@ export function CommandPalette() {
   const [status, setStatus] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const close = useCallback(() => {
     setIsOpen(false);
@@ -118,6 +123,22 @@ export function CommandPalette() {
         }
       },
       {
+        id: "home",
+        label: "Go home",
+        hint: "A breath of fresh air",
+        keywords: "home landing leaves welcome",
+        icon: Home,
+        run: () => { router.push("/"); }
+      },
+      {
+        id: "lab",
+        label: "Open Decision Lab",
+        hint: "Make a little room in your day",
+        keywords: "lab schedule plan decisions tasks priorities",
+        icon: Waypoints,
+        run: () => { router.push("/lab"); }
+      },
+      {
         id: "settings",
         label: "Go to settings",
         hint: "Plan, usage, and account",
@@ -140,7 +161,7 @@ export function CommandPalette() {
       {
         id: "logout",
         label: "Sign out",
-        hint: "Clear the local session",
+        hint: "Leave your workspace",
         keywords: "sign out logout exit leave",
         icon: LogOut,
         run: async () => {
@@ -187,10 +208,28 @@ export function CommandPalette() {
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      inputRef.current?.focus();
+    if (!isOpen) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    inputRef.current?.focus();
+    function onDialogKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") close();
+      if (event.key !== "Tab") return;
+      const elements = dialogRef.current?.querySelectorAll<HTMLElement>('input,button:not([disabled]),a[href]');
+      if (!elements?.length) return;
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     }
-  }, [isOpen]);
+    document.addEventListener("keydown", onDialogKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onDialogKeyDown);
+      previousFocus?.focus();
+    };
+  }, [isOpen, close]);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -260,7 +299,8 @@ export function CommandPalette() {
   return (
     <div
       aria-modal="true"
-      className="mf-fade fixed inset-0 z-50 flex items-start justify-center bg-stone-900/30 px-4 pt-[14vh] backdrop-blur-sm"
+      aria-label="Quick actions"
+      className="mf-fade fixed inset-0 z-[70] flex items-start justify-center bg-[#183d2b]/25 px-4 pt-[12vh] backdrop-blur-sm"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           close();
@@ -268,7 +308,7 @@ export function CommandPalette() {
       }}
       role="dialog"
     >
-      <div className="mf-glass mf-pop w-full max-w-xl overflow-hidden rounded-2xl">
+      <div ref={dialogRef} className="mf-pop w-full max-w-xl overflow-hidden rounded-2xl border border-[#183d2b1a] bg-[#fcfdf9] shadow-2xl">
         <div className="flex items-center gap-3 border-b border-border px-4">
           <Search
             className="size-4 shrink-0 text-muted-foreground"
@@ -279,13 +319,11 @@ export function CommandPalette() {
             className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={onInputKeyDown}
-            placeholder="Type a command or search..."
+            placeholder="What would you like to do?"
             ref={inputRef}
             value={query}
           />
-          <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-            ESC
-          </span>
+          <button type="button" aria-label="Close quick actions" onClick={close} className="grid size-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-[#e8efdf]"><X size={16} aria-hidden="true" /></button>
         </div>
 
         <div className="mf-scroll max-h-80 overflow-y-auto p-2">
@@ -299,6 +337,7 @@ export function CommandPalette() {
                     : "text-muted-foreground hover:bg-black/[0.03] hover:text-foreground"
                 )}
                 key={command.id}
+                disabled={isRunning}
                 onClick={() => void runCommand(command)}
                 onMouseEnter={() => setActiveIndex(index)}
                 type="button"

@@ -20,6 +20,20 @@ Actively being built. What's done and what's still in flight:
 
 The easiest way to see it working today is [demo mode](#demo-mode), which needs no setup.
 
+## A lighter workspace
+
+The landing page opens with a procedural leaf canopy: shaded leaves drift, turn, and respond to the pointer. Use the pause control to stop the leaves. Reduced-motion preferences produce a static scene and disable scroll effects. Off-screen and hidden scenes stop rendering.
+
+The same pine-and-mist palette, locally hosted Cabinet Grotesk typography, and leaf identity carry through the inbox, message details, connection, settings, and day planner. The landing-page sample inbox is interactive; the full demo supports filters, search, previews, and editable replies. No remote image or font request is needed to render the new design.
+
+Development output uses `.next-dev`; production builds use `.next`. Run `npm run dev -- --port 3001` alongside a production preview on port 3000 when needed. To refresh that production preview, stop it, run `npm run build`, then `npm run preview:background`.
+
+## Decision Lab
+
+Open [http://localhost:3000/lab](http://localhost:3000/lab) for an interactive planning tool that works without credentials. It turns an editable fictional inbox into an exact schedule with deadlines, dependencies, meetings, context switching, and duration buffers. Lock commitments, inspect the opportunity cost of deferred work, stress-test the day, and export a local calendar file. You can add your own tasks, edit fixed meetings, and import/export complete scenarios as JSON; changes are saved in your browser.
+
+The default scenario scores 331 impact points versus 225 for the deadline-first baseline. Scores are authored judgments, and optimality applies to the explicit scheduling model. See [the model and examples](docs/decision-lab.md) and [independent verification](docs/decision-lab-verification.md). Run `npm run test:planner` and `npm run test:planner:io` to reproduce the checks.
+
 ## What is included
 
 - Landing page, Gmail connection page, dashboard, email detail page, and settings/usage page
@@ -29,7 +43,7 @@ The easiest way to see it working today is [demo mode](#demo-mode), which needs 
 - OpenAI analysis and reply helpers
 - Supabase schema with users, emails, drafts, usage, and Gmail connection token storage
 - Free plan limits: 100 analyses/month, 20 drafts/month, 1 Gmail account
-- Pro plan UI and Stripe-ready checkout placeholder
+- Stripe-ready checkout placeholder (no active checkout UI)
 - Demo mode with realistic sample emails, filters, mocked analysis, and mocked drafts
 
 ## Project structure
@@ -84,7 +98,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Use demo mode when you want to explore the product without Supabase, Google OAuth, Gmail, or OpenAI credentials.
 
-- Click `Try demo` on the landing page or `Try demo inbox` on the connect page.
+- Click `Try MailFlow` or `Find your calm` on the landing page, or choose the sample inbox on the connect page.
 - Or set `MAILFLOW_DEMO_MODE=true` in `.env.local`.
 - If Supabase is not configured, MailFlow automatically falls back to the demo inbox.
 
@@ -98,7 +112,7 @@ Demo mode includes realistic analyzed emails, one pending email, dashboard filte
 - `GET /api/demo/start`: starts the local demo inbox
 - `POST /api/emails/fetch`: fetches the latest 25 unread Gmail messages
 - `POST /api/emails/analyze`: analyzes unanalyzed emails and updates usage
-- `POST /api/emails/:id/reply`: generates a reply and optionally saves a Gmail draft
+- `POST /api/emails/:id/reply`: generates a reply, or saves the exact edited reply as a Gmail draft
 - `POST /api/subscription/checkout`: Stripe-ready placeholder
 
 ## Production notes

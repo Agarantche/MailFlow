@@ -1,17 +1,21 @@
 "use client";
 
-import { Copy, FilePlus2, Send } from "lucide-react";
+import { Copy, FilePlus2, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/frontend/components/ui/button";
 import { Textarea } from "@/frontend/components/ui/textarea";
 
 export function ReplyComposer({ emailId }: { emailId: string }) {
+  const router = useRouter();
   const [draft, setDraft] = useState("");
+  const [savedText, setSavedText] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  async function generate(saveToGmail = false) {
+  async function runAction(saveToGmail = false) {
+    if (isLoading || (saveToGmail && !draft.trim())) return;
     setIsLoading(true);
     setMessage(saveToGmail ? "Creating Gmail draft..." : "Generating reply...");
 
@@ -23,7 +27,7 @@ export function ReplyComposer({ emailId }: { emailId: string }) {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ saveToGmail })
+        body: JSON.stringify(saveToGmail ? { saveToGmail: true, draftText: draft } : { saveToGmail: false })
       });
     } catch {
       setIsLoading(false);
@@ -41,20 +45,22 @@ export function ReplyComposer({ emailId }: { emailId: string }) {
     setIsLoading(false);
 
     if (!response.ok) {
-      setMessage(payload.error ?? "Could not generate reply.");
+      setMessage(payload.error ?? (saveToGmail ? "Could not save your draft." : "Could not generate reply."));
       return;
     }
 
     setDraft(payload.draftText ?? "");
+    setSavedText(payload.gmailDraftId ? payload.draftText ?? null : null);
     setMessage(
       payload.demo && payload.gmailDraftId
-        ? "Demo reply generated and draft save simulated."
+        ? "Demo save simulated with your exact edited reply. No email was sent."
         : payload.demo
           ? "Demo reply generated. Review it before using it."
           : payload.gmailDraftId
-            ? "Reply generated and saved as a Gmail draft."
+            ? "Your reply was saved as a Gmail draft, with your edits intact."
             : "Reply generated. Review it before using it."
     );
+    if (!payload.demo) router.refresh();
   }
 
   async function copyDraft() {
@@ -71,7 +77,7 @@ export function ReplyComposer({ emailId }: { emailId: string }) {
   }
 
   return (
-    <div className="mf-panel rounded-md p-5">
+    <div className="mf-panel rounded-[14px] p-6 sm:p-7">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold">Reply draft</h2>
@@ -80,17 +86,17 @@ export function ReplyComposer({ emailId }: { emailId: string }) {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button disabled={isLoading} onClick={() => generate(false)}>
-            <Send className="size-4" aria-hidden="true" />
-            Generate
+          <Button disabled={isLoading} onClick={() => runAction(false)}>
+            <Sparkles className="size-4" aria-hidden="true" />
+            {draft ? "Generate another" : "Generate a reply"}
           </Button>
           <Button
-            disabled={isLoading}
-            onClick={() => generate(true)}
+            disabled={isLoading || !draft.trim() || draft === "No reply recommended." || draft === savedText}
+            onClick={() => runAction(true)}
             variant="secondary"
           >
             <FilePlus2 className="size-4" aria-hidden="true" />
-            Save draft
+            Save to Gmail
           </Button>
           <Button
             disabled={!draft || isLoading}
@@ -104,8 +110,11 @@ export function ReplyComposer({ emailId }: { emailId: string }) {
       </div>
       <Textarea
         className="mt-4"
+        aria-label="Reply draft"
+        disabled={isLoading}
+        maxLength={20000}
         onChange={(event) => setDraft(event.target.value)}
-        placeholder="Generated reply will appear here."
+        placeholder="Start with a suggested reply, or write in your own words."
         value={draft}
       />
       {message ? (

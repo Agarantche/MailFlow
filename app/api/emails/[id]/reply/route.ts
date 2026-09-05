@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 import { getErrorMessage, jsonError } from "@/backend/api";
 import {
@@ -20,6 +21,19 @@ import { generateReplyWithAI } from "@/backend/openai";
 import { getSupabaseAdmin } from "@/backend/supabase";
 import type { EmailRecord } from "@/lib/types";
 
+const replyRequestSchema = z.discriminatedUnion("saveToGmail", [
+  z.object({ saveToGmail: z.literal(false), draftText: z.undefined() }),
+  z.object({
+    saveToGmail: z.literal(true),
+    draftText: z.string().max(20_000, "Keep your draft under 20,000 characters.")
+      .refine((text) => text.trim().length > 0, "Write a reply before saving your draft.")
+  })
+]);
+
+function isFlagged(email: EmailRecord) {
+  return email.category === "Phishing" || email.category === "Spam" || (email.risk_score ?? 0) >= 7;
+}
+
 export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -27,9 +41,16 @@ export async function POST(
   try {
     const user = await requireCurrentUser();
     const { id } = await context.params;
-    const body = (await request.json().catch(() => ({}))) as {
-      saveToGmail?: boolean;
-    };
+    const rawBody: unknown = await request.json().catch(() => null);
+    const parsed = replyRequestSchema.safeParse(
+      rawBody && typeof rawBody === "object" && !Array.isArray(rawBody)
+        ? { saveToGmail: false, ...rawBody }
+        : rawBody
+    );
+    if (!parsed.success) {
+      return jsonError(parsed.error.issues[0]?.message ?? "Invalid reply request.", 400);
+    }
+    const body = parsed.data;
 
     if (isDemoUserId(user.id)) {
       const email = getDemoEmailById(id, {
@@ -41,14 +62,19 @@ export async function POST(
         return jsonError("Demo email not found.", 404);
       }
 
-      const usage = await ensureUsageRow(user.id);
-      const limits = getPlanLimits(user.plan);
-
-      if (usage.drafts_generated >= limits.draftsGenerated) {
-        return jsonError("Monthly reply draft limit reached.", 402);
+      if (body.saveToGmail && isFlagged(email)) {
+        return jsonError("This message is flagged as suspicious. No reply draft is recommended.", 400);
       }
 
-      const draftText = generateDemoReply(email);
+      if (!body.saveToGmail) {
+        const usage = await ensureUsageRow(user.id);
+        const limits = getPlanLimits(user.plan);
+        if (usage.drafts_generated >= limits.draftsGenerated) {
+          return jsonError("Monthly reply draft limit reached.", 402);
+        }
+      }
+
+      const draftText = body.saveToGmail ? body.draftText : generateDemoReply(email);
       const shouldPersist = draftText !== "No reply recommended.";
       const gmailDraftId =
         body.saveToGmail && shouldPersist ? `demo-draft-${email.id}` : null;
@@ -77,20 +103,25 @@ export async function POST(
       .select("*")
       .eq("id", id)
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (emailError) {
       throw emailError;
     }
+    if (!email) return jsonError("Email not found.", 404);
 
-    const usage = await ensureUsageRow(user.id);
-    const limits = getPlanLimits(user.plan);
-
-    if (usage.drafts_generated >= limits.draftsGenerated) {
-      return jsonError("Monthly reply draft limit reached.", 402);
+    if (body.saveToGmail && isFlagged(email as EmailRecord)) {
+      return jsonError("This message is flagged as suspicious. No reply draft is recommended.", 400);
+    }
+    if (!body.saveToGmail) {
+      const usage = await ensureUsageRow(user.id);
+      const limits = getPlanLimits(user.plan);
+      if (usage.drafts_generated >= limits.draftsGenerated) {
+        return jsonError("Monthly reply draft limit reached.", 402);
+      }
     }
 
-    const draftText = await generateReplyWithAI(email as EmailRecord);
+    const draftText = body.saveToGmail ? body.draftText : await generateReplyWithAI(email as EmailRecord);
     const shouldPersist = draftText !== "No reply recommended.";
     let gmailDraftId: string | null = null;
 
@@ -127,9 +158,9 @@ export async function POST(
         throw error;
       }
 
-      await incrementUsage(user.id, {
-        drafts_generated: 1
-      });
+      if (!body.saveToGmail) {
+        await incrementUsage(user.id, { drafts_generated: 1 });
+      }
 
       draft = data;
     }
